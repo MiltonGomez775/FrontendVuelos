@@ -6,7 +6,7 @@ import { Flight, FlightRequest } from '../models/flight.model';
 @Injectable({ providedIn: 'root' })
 export class FlightService {
   private http = inject(HttpClient);
-  private readonly API = 'http://localhost:8080/api/flights';
+  private readonly API = '/api/flights';
 
   getAll(): Observable<Flight[]> {
     return this.http.get<Flight[]>(this.API);

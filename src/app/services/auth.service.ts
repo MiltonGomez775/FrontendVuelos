@@ -8,7 +8,7 @@ import { AuthResponse, LoginRequest, RegisterRequest } from '../models/auth.mode
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
-  private readonly API = 'http://localhost:8080/api/auth';
+  private readonly API = '/api/auth';
 
   currentUser = signal<AuthResponse | null>(this.loadUser());
 

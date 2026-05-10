@@ -6,7 +6,7 @@ import { Itinerary } from '../models/itinerary.model';
 @Injectable({ providedIn: 'root' })
 export class ItineraryService {
   private http = inject(HttpClient);
-  private readonly API = 'http://localhost:8080/api/itineraries';
+  private readonly API = '/api/itineraries';
 
   book(flightId: number, seatNumber: string): Observable<Itinerary> {
     return this.http.post<Itinerary>(this.API, { flightId, seatNumber });

@@ -6,7 +6,7 @@ import { BaggageClaim, ClaimStatus } from '../models/baggage-claim.model';
 @Injectable({ providedIn: 'root' })
 export class BaggageClaimService {
   private http = inject(HttpClient);
-  private readonly API = 'http://localhost:8080/api/baggage-claims';
+  private readonly API = '/api/baggage-claims';
 
   create(flightId: number, description: string): Observable<BaggageClaim> {
     return this.http.post<BaggageClaim>(this.API, { flightId, description });

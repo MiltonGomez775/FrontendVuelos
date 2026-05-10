@@ -6,7 +6,7 @@ import { FlightNotification } from '../models/notification.model';
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
   private http = inject(HttpClient);
-  private readonly API = 'http://localhost:8080/api/notifications';
+  private readonly API = '/api/notifications';
 
   getAll(): Observable<FlightNotification[]> {
     return this.http.get<FlightNotification[]>(this.API);
