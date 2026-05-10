@@ -1,0 +1,47 @@
+body {
+  background-color: #f8f9fa;
+}
+
+.navbar .nav-link {
+  padding: 0.25rem 0;
+}
+
+/* Booking side panel */
+.booking-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1040;
+}
+
+.booking-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 360px;
+  height: 100dvh;
+  z-index: 1050;
+  border-radius: 0;
+  overflow-y: auto;
+}
+
+/* Nav tabs */
+.nav-tabs .nav-link {
+  color: #495057;
+  cursor: pointer;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  padding: 0.5rem 1rem;
+
+  &.active {
+    color: #0d6efd;
+    border-bottom-color: #0d6efd;
+    font-weight: 600;
+  }
+
+  &:hover:not(.active) {
+    color: #0d6efd;
+    border-bottom-color: #dee2e6;
+  }
+}

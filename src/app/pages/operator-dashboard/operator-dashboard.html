@@ -1,0 +1,167 @@
+<div class="container-fluid mt-4">
+  <div class="d-flex align-items-center mb-4">
+    <div>
+      <h4 class="mb-0">Panel de Operador</h4>
+      <small class="text-muted">{{ auth.currentUser()?.name }} · {{ auth.getRole() }}</small>
+    </div>
+  </div>
+
+  @if (message()) {
+    <div class="alert alert-success alert-dismissible py-2">
+      {{ message() }}
+      <button type="button" class="btn-close" (click)="clearMessages()"></button>
+    </div>
+  }
+  @if (error()) {
+    <div class="alert alert-danger alert-dismissible py-2">
+      {{ error() }}
+      <button type="button" class="btn-close" (click)="clearMessages()"></button>
+    </div>
+  }
+
+  <!-- Tabs -->
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+      <button class="nav-link" [class.active]="activeTab() === 'flights'" (click)="setTab('flights')">
+        Gestión de Vuelos
+        <span class="badge bg-primary ms-1">{{ flights().length }}</span>
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" [class.active]="activeTab() === 'claims'" (click)="setTab('claims')">
+        Reclamos de Equipaje
+        <span class="badge bg-danger ms-1">{{ claims().length }}</span>
+      </button>
+    </li>
+  </ul>
+
+  <!-- Flights tab -->
+  @if (activeTab() === 'flights') {
+    <div class="d-flex justify-content-end mb-3">
+      <button class="btn btn-primary btn-sm" (click)="showFlightForm.set(!showFlightForm())">
+        {{ showFlightForm() ? 'Cancelar' : '+ Nuevo Vuelo' }}
+      </button>
+    </div>
+
+    @if (showFlightForm()) {
+      <div class="card mb-4">
+        <div class="card-header fw-semibold">Crear nuevo vuelo</div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-3">
+              <label class="form-label">N° de vuelo</label>
+              <input class="form-control" [(ngModel)]="flightForm.flightNumber" placeholder="AV123" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Aerolínea</label>
+              <input class="form-control" [(ngModel)]="flightForm.airline" placeholder="Avianca" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Origen</label>
+              <input class="form-control" [(ngModel)]="flightForm.origin" placeholder="BOG" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Destino</label>
+              <input class="form-control" [(ngModel)]="flightForm.destination" placeholder="MDE" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Salida</label>
+              <input type="datetime-local" class="form-control" [(ngModel)]="flightForm.departureTime" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Llegada</label>
+              <input type="datetime-local" class="form-control" [(ngModel)]="flightForm.arrivalTime" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Puerta</label>
+              <input class="form-control" [(ngModel)]="flightForm.gate" placeholder="A5" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Asientos disponibles</label>
+              <input type="number" class="form-control" [(ngModel)]="flightForm.availableSeats" />
+            </div>
+            <div class="col-12">
+              <button class="btn btn-primary" (click)="createFlight()">Crear Vuelo</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th>Vuelo</th><th>Aerolínea</th><th>Ruta</th><th>Salida</th>
+            <th>Estado</th><th>Puerta</th><th>Asientos</th><th>Cambiar estado</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (f of flights(); track f.id) {
+            <tr>
+              <td><strong>{{ f.flightNumber }}</strong></td>
+              <td>{{ f.airline }}</td>
+              <td>{{ f.origin }} → {{ f.destination }}</td>
+              <td class="small">{{ formatDate(f.departureTime) }}</td>
+              <td><span [class]="flightBadge(f.status)">{{ f.status }}</span></td>
+              <td>{{ f.gate }}</td>
+              <td>{{ f.availableSeats }}</td>
+              <td>
+                <select class="form-select form-select-sm" style="min-width:130px"
+                  [value]="f.status" (change)="updateFlightStatus(f, $event)">
+                  @for (s of flightStatuses; track s) {
+                    <option [value]="s">{{ s }}</option>
+                  }
+                </select>
+              </td>
+              <td>
+                <button class="btn btn-sm btn-outline-danger" (click)="deleteFlight(f)">Eliminar</button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="9" class="text-center text-muted py-4">No hay vuelos registrados</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <!-- Claims tab -->
+  @if (activeTab() === 'claims') {
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th>#</th><th>Vuelo</th><th>Descripción</th><th>Estado actual</th>
+            <th>Cambiar estado</th><th>Actualizado</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of claims(); track c.id) {
+            <tr>
+              <td>{{ c.id }}</td>
+              <td>{{ c.flightNumber }}</td>
+              <td>{{ c.description }}</td>
+              <td><span [class]="claimBadge(c.status)">{{ c.status }}</span></td>
+              <td>
+                <select class="form-select form-select-sm" style="min-width:130px"
+                  [value]="c.status" (change)="updateClaimStatus(c, $event)">
+                  @for (s of claimStatuses; track s) {
+                    <option [value]="s">{{ s }}</option>
+                  }
+                </select>
+              </td>
+              <td class="small text-muted">{{ formatDate(c.updatedAt) }}</td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="text-center text-muted py-4">No hay reclamos registrados</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

@@ -1,0 +1,99 @@
+<div class="container-fluid mt-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h4 class="mb-0">Vuelos disponibles</h4>
+    <span class="text-muted small">{{ flights().length }} vuelo(s)</span>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>Vuelo</th>
+          <th>Aerolínea</th>
+          <th>Origen</th>
+          <th>Destino</th>
+          <th>Salida</th>
+          <th>Llegada</th>
+          <th>Estado</th>
+          <th>Puerta</th>
+          <th>Asientos</th>
+          @if (auth.getRole() === 'PASSENGER') {
+            <th></th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (f of flights(); track f.id) {
+          <tr>
+            <td><strong>{{ f.flightNumber }}</strong></td>
+            <td>{{ f.airline }}</td>
+            <td>{{ f.origin }}</td>
+            <td>{{ f.destination }}</td>
+            <td>{{ formatDate(f.departureTime) }}</td>
+            <td>{{ formatDate(f.arrivalTime) }}</td>
+            <td><span [class]="statusBadge(f.status)">{{ f.status }}</span></td>
+            <td>{{ f.gate }}</td>
+            <td>{{ f.availableSeats }}</td>
+            @if (auth.getRole() === 'PASSENGER') {
+              <td>
+                <button class="btn btn-sm btn-outline-success" [disabled]="!canBook(f)"
+                  (click)="selectFlight(f)">
+                  Reservar
+                </button>
+              </td>
+            }
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="10" class="text-center text-muted py-4">No hay vuelos disponibles</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (!auth.isLoggedIn()) {
+    <div class="alert alert-info mt-3">
+      <a routerLink="/login">Inicia sesión</a> como pasajero para reservar vuelos.
+    </div>
+  }
+</div>
+
+<!-- Booking side panel -->
+@if (showBookPanel() && selectedFlight()) {
+  <div class="booking-overlay" (click)="closePanel()"></div>
+  <div class="booking-panel card shadow-lg">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <strong>Reservar {{ selectedFlight()!.flightNumber }}</strong>
+      <button class="btn-close" (click)="closePanel()"></button>
+    </div>
+    <div class="card-body">
+      <p class="text-muted mb-1">
+        {{ selectedFlight()!.origin }} → {{ selectedFlight()!.destination }}
+      </p>
+      <p class="text-muted small mb-3">
+        Salida: {{ formatDate(selectedFlight()!.departureTime) }}
+      </p>
+
+      @if (bookingMessage()) {
+        <div class="alert alert-success py-2">{{ bookingMessage() }}</div>
+      }
+      @if (bookingError()) {
+        <div class="alert alert-danger py-2">{{ bookingError() }}</div>
+      }
+
+      @if (!bookingMessage()) {
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Número de asiento</label>
+          <input type="text" class="form-control" [(ngModel)]="seatNumber"
+            placeholder="Ej: 14A, 22B" />
+        </div>
+        <button class="btn btn-success w-100" (click)="book()"
+          [disabled]="loading() || !seatNumber.trim()">
+          @if (loading()) { <span class="spinner-border spinner-border-sm me-1"></span> Reservando... }
+          @else { Confirmar reserva }
+        </button>
+      }
+    </div>
+  </div>
+}

@@ -1,0 +1,23 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand fw-bold" routerLink="/">✈ FlyTrack</a>
+    <div class="d-flex align-items-center gap-3 ms-auto">
+      <a class="nav-link text-white" routerLink="/flights">Vuelos</a>
+      @if (auth.isLoggedIn()) {
+        @if (auth.getRole() === 'PASSENGER') {
+          <a class="nav-link text-white" routerLink="/dashboard">Mi Panel</a>
+        }
+        @if (auth.getRole() === 'OPERATOR' || auth.getRole() === 'ADMIN') {
+          <a class="nav-link text-white" routerLink="/operator">Panel Operador</a>
+        }
+        <span class="text-white small opacity-75">{{ auth.currentUser()?.name }}</span>
+        <button class="btn btn-outline-light btn-sm" (click)="auth.logout()">Salir</button>
+      } @else {
+        <a class="nav-link text-white" routerLink="/login">Ingresar</a>
+        <a class="btn btn-light btn-sm" routerLink="/register">Registrarse</a>
+      }
+    </div>
+  </div>
+</nav>
+
+<router-outlet />
